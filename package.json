@@ -1,8 +1,12 @@
 {
-  "name": "@sigodenjs/fisheye",
-  "version": "0.1.3",
+  "name": "fisheye-correction-plus",
+  "version": "0.0.1",
   "description": "A opencv fisheye camera model bindings for Node.js",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Protofy-xyz/fisheye-correction-plus"
+  },
   "scripts": {
     "build:dev": "node-gyp -j 8 rebuild --debug",
     "build": "node-gyp -j 8 rebuild",
@@ -15,7 +19,7 @@
     "calibrate",
     "undistort"
   ],
-  "author": "Sigoden Huang <sigoden@gmail.com> (https://sigoden.com/)",
+  "author": "Ariadna Marquès <ariadna@protofy.xyz>",
   "license": "MIT",
   "gypfile": true,
   "files": [

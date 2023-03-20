@@ -1,7 +1,13 @@
+
+
 # Fisheye camera model
 
 A opencv fisheye camera model bindings for Node.js.
 
+## Note
+
+This library it's a modification from 
+https://github.com/sigoden/node-fisheye
 
 ## Install
 
