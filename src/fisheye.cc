@@ -4,6 +4,13 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 
+#include <iostream>
+
+using namespace cv;
+using namespace std;
+
+Size DIM(1280, 720);
+
 cv::Mat toImageMat(Napi::Buffer<uchar> jsRawImg, int flag = cv::IMREAD_COLOR)
 {
     uchar *buf = jsRawImg.Data();
@@ -100,6 +107,68 @@ Napi::Buffer<char> Undistort(const Napi::CallbackInfo &info)
     cv::fisheye::undistortImage(distorted, undistorted, k, d, k, size);
 
     return encodeMat(env, undistorted, jsExtra);
+}
+
+Napi::Buffer<char> Undistort2(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+
+    Napi::Buffer<uchar> jsRawImg = info[0].As<Napi::Buffer<uchar>>();
+    Napi::Array jsK = info[1].As<Napi::Array>();
+    Napi::Array jsD = info[2].As<Napi::Array>();
+
+    Napi::Object jsExtra;
+
+    if (info.Length() == 4) {
+        jsExtra = info[3].As<Napi::Object>();
+    } else {
+        jsExtra = Napi::Object::New(env);
+    }
+
+    cv::Mat distorted = toImageMat(jsRawImg);
+    cv::Matx33d k = getK(jsK);
+    cv::Vec4d d = getD(jsD);
+    cv::Mat undistorted;
+
+    cv::Size dim1 = distorted.size();
+
+    //if (dim1.width/dim1.height != DIM.width/DIM.height)
+    //{
+    //    return null;
+    //}
+
+    double balance=1.0;
+    Size dim2=Size(1280,720);
+    Size dim3=Size(1280,720);
+    //Size dim2 = dim1;
+    //Size dim3 = dim1;
+
+    if (dim2 == Size())
+    {
+        dim2 = dim1;
+    }
+    if (dim3 == Size())
+    {
+        dim3 = dim1;
+    }
+
+    Mat scaled_K = Mat(k) * static_cast<double>(dim1.width) / static_cast<double>(DIM.width);
+
+    scaled_K.at<double>(2, 2) = 1.0;
+
+    Mat new_K;
+
+    cv::fisheye::estimateNewCameraMatrixForUndistortRectify(scaled_K, d, dim2, Mat::eye(3, 3, CV_64F), new_K, balance=balance);
+
+    Mat map1, map2;
+
+    cv::fisheye::initUndistortRectifyMap(scaled_K, d, Mat::eye(3, 3, CV_64F), new_K, dim3, CV_16SC2, map1, map2);
+
+    Mat undistorted_img;
+
+    remap(distorted, undistorted_img, map1, map2, INTER_LINEAR, BORDER_CONSTANT);
+
+    return encodeMat(env, undistorted_img, jsExtra);
 }
 
 std::vector<cv::Mat> getImages(Napi::Array jsImagesArray)
@@ -203,6 +272,7 @@ Napi::Object Calibrate(const Napi::CallbackInfo &info)
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
     exports.Set("undistort", Napi::Function::New(env, Undistort));
+    exports.Set("undistort2", Napi::Function::New(env, Undistort2));
     exports.Set("calibrate", Napi::Function::New(env, Calibrate));
     return exports;
 }

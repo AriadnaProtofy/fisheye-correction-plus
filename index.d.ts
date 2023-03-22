@@ -50,3 +50,10 @@ export function undistort(
   D: Vet4d,
   extra?: UndistortExtra
 ): Buffer;
+
+export function undistort2(
+  image: Buffer,
+  K: Matx33d,
+  D: Vet4d,
+  extra?: UndistortExtra
+): Buffer;

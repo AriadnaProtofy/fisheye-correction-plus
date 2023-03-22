@@ -1,11 +1,11 @@
 {
   "name": "fisheye-correction-plus",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "A opencv fisheye camera model bindings for Node.js",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Protofy-xyz/fisheye-correction-plus"
+    "url": "https://github.com/AriadnaProtofy/fisheye-correction-plus"
   },
   "scripts": {
     "build:dev": "node-gyp -j 8 rebuild --debug",
